@@ -4,25 +4,27 @@ import (
 	"sync"
 
 	"github.com/Kirusha-DA/VK-backend-trainee-service/pkg/logging"
-	"github.com/spf13/viper"
+	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type Config struct {
-	IsDebug bool
-	Listen  struct {
-		Type   string
-		BindIp string
-		Port   string
-	}
-	Storage StorageConfig
+	IsDebug *bool         `yaml:"is_debug" env-required:"true"`
+	Listen  ListenConfig  `yaml:"listen"`
+	Storage StorageConfig `yaml:"storage"`
+}
+
+type ListenConfig struct {
+	Type   string `yaml:"type" env-default:"tcp"`
+	BindIp string `yaml:"bind_ip" env-default:"127.0.0.1"`
+	Port   string `yaml:"port" env-default:"8080"`
 }
 
 type StorageConfig struct {
-	Host     string
-	Port     string
-	DB       string
-	User     string
-	Password string
+	Host     string `yaml:"host" env-default:"5432"`
+	Port     string `yaml:"port" env-default:"5432"`
+	DB       string `yaml:"database" env-default:"filmoteka"`
+	User     string `yaml:"username" env-default:"postgres"`
+	Password string `yaml:"password" env-default:"123"`
 }
 
 var instance *Config
@@ -32,19 +34,11 @@ func GetConfig() *Config {
 	once.Do(func() {
 		logger := logging.GetLogger()
 		logger.Info("read app config")
-		viper.AddConfigPath("./configs")
-		viper.SetConfigName("config")
-		viper.SetConfigType("yaml")
-		if err := viper.ReadInConfig(); err != nil {
+		instance = &Config{}
+		if err := cleanenv.ReadConfig("configs/config.yml", instance); err != nil {
+			help, _ := cleanenv.GetDescription(instance, nil)
+			logger.Info(help)
 			logger.Fatal(err)
-		}
-		instance = &Config{
-			IsDebug: viper.GetBool("is_debug"),
-			Listen: struct {
-				Type   string
-				BindIp string
-				Port   string
-			}{viper.GetString("listen.type"), viper.GetString("listen.bind_ip"), viper.GetString("listen.port")},
 		}
 	})
 

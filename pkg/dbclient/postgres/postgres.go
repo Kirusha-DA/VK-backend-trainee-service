@@ -9,12 +9,11 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewClient(logger *logging.Logger, sc *config.StorageConfig) (connection *gorm.DB) {
+func NewClient(logger *logging.Logger, sc *config.StorageConfig) *gorm.DB {
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s", sc.Host, sc.User, sc.Password, sc.DB, sc.Port)
 	connection, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
 	if err != nil {
 		logger.Fatal("Failed to connect to postgres")
 	}
-	return
+	return connection
 }
