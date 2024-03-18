@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5432:5432"
+    depends_on:
+      - db
+    environment:
+      - DB_PASSWORD=123
+
+  db:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=filmoteka
+      - POSTGRES_PASSWORD=123

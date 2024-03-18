@@ -205,11 +205,14 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/usersauth.jsonTokenErrorWrapper"
+                            "$ref": "#/definitions/usersauth.jsonTokenWrapper"
                         }
                     },
                     "404": {
-                        "description": "Not Found"
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/usersauth.jsonTokenErrorWrapper"
+                        }
                     }
                 }
             }
@@ -525,6 +528,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "usersauth.jsonTokenWrapper": {
+            "type": "object",
+            "properties": {
+                "token": {
                     "type": "string"
                 }
             }

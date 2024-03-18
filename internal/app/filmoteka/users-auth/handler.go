@@ -62,8 +62,8 @@ func (h *handler) SignUp(w http.ResponseWriter, r *http.Request) {
 // @ID sing-in-user
 // @Param username query string true "Username"
 // @Param password query string true "Password"
-// @Success 200 {object} jsonTokenErrorWrapper
-// @Failure 404
+// @Success 200 {object} jsonTokenWrapper
+// @Failure 404 {object} jsonTokenErrorWrapper
 // @Router /auth/sign-in [get]
 func (h *handler) SignIn(w http.ResponseWriter, r *http.Request) {
 	len := r.ContentLength
