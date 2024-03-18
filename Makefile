@@ -5,5 +5,10 @@ postgres-up:
 postgres-down:
 	docker stop postgres
 
+app-up:
+	docker-compose up
+app-down:
+	docker-compose down
+
 swag:
 	swag init -g cmd/filmoteka/main.go

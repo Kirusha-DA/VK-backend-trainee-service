@@ -1,21 +1,29 @@
 version: '3'
 
 services:
-  server:
+  rest-api:
+    container_name: rest-api-server
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5432:5432"
+      - "8080:8080"
     depends_on:
-      - db
+      - postgres
     environment:
       - DB_PASSWORD=123
 
-  db:
-    image: postgres:latest
+  postgres:
+    container_name: postgres
+    image: postgres:alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     environment:
       - POSTGRES_DB=filmoteka
       - POSTGRES_PASSWORD=123
+      - POSTGRES_USER=kirill
+
+volumes:
+  pgdata:
