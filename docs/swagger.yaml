@@ -1,8 +1,30 @@
 definitions:
+  dtos.ActorDTO:
+    properties:
+      birth_date:
+        type: string
+      name:
+        type: string
+      sex:
+        type: string
+    type: object
+  dtos.MovieDTO:
+    properties:
+      desctiption:
+        type: string
+      name:
+        type: string
+      rating:
+        type: integer
+    type: object
   models.Actor:
     properties:
       birth_date:
         type: string
+      movies:
+        items:
+          $ref: '#/definitions/models.Movie'
+        type: array
       name:
         type: string
       sex:
@@ -28,6 +50,11 @@ definitions:
       username:
         type: string
     type: object
+  usersauth.jsonTokenErrorWrapper:
+    properties:
+      error:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -45,7 +72,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/models.Actor'
+          $ref: '#/definitions/dtos.ActorDTO'
       responses:
         "400":
           description: Bad Request
@@ -81,7 +108,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/models.Actor'
+          $ref: '#/definitions/dtos.ActorDTO'
       - description: Actor ID
         in: path
         name: id
@@ -107,7 +134,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/models.Actor'
+          $ref: '#/definitions/dtos.ActorDTO'
       - description: Account ID
         in: path
         name: id
@@ -116,8 +143,6 @@ paths:
       responses:
         "400":
           description: Bad Request
-        "404":
-          description: Not Found
       security:
       - ApiKeyAuth: []
       summary: UpdateActorById
@@ -128,12 +153,18 @@ paths:
       operationId: get-actor-movie
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Actor'
+            type: array
       summary: GetAllActorsWithMovies
       tags:
       - actors
   /auth/sign-in:
-    post:
+    get:
       operationId: sing-in-user
       parameters:
       - description: Username
@@ -147,11 +178,15 @@ paths:
         required: true
         type: string
       responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/usersauth.jsonTokenErrorWrapper'
         "404":
           description: Not Found
       summary: SignInUser
       tags:
-      - movies
+      - auth
   /auth/sign-up:
     post:
       operationId: sing-up-user
@@ -163,6 +198,8 @@ paths:
         schema:
           $ref: '#/definitions/models.UserAuth'
       responses:
+        "200":
+          description: OK
         "400":
           description: Bad Request
       summary: SignUpUser
@@ -179,7 +216,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/models.Movie'
+          $ref: '#/definitions/dtos.MovieDTO'
       responses:
         "400":
           description: Bad Request
@@ -197,10 +234,14 @@ paths:
         name: q
         required: true
         type: string
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.MovieDTO'
       summary: GetMoviesByName
       tags:
-      - actors
+      - movies
   /movies/{id}:
     delete:
       operationId: delete-movie
@@ -228,7 +269,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/models.Movie'
+          $ref: '#/definitions/dtos.MovieDTO'
       - description: Movie ID
         in: path
         name: id
@@ -254,7 +295,7 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/models.Movie'
+          $ref: '#/definitions/dtos.MovieDTO'
       - description: Movie ID
         in: path
         name: id
@@ -263,8 +304,6 @@ paths:
       responses:
         "400":
           description: Bad Request
-        "404":
-          description: Not Found
       security:
       - ApiKeyAuth: []
       summary: UpdateMovieById
@@ -280,9 +319,15 @@ paths:
         required: true
         type: string
       responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dtos.MovieDTO'
+            type: array
         "404":
           description: Not Found
-      summary: GetMoviesByName
+      summary: GetMoviesByActorName
       tags:
       - movies
 securityDefinitions:

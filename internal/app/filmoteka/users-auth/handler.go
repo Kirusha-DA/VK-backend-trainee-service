@@ -40,7 +40,7 @@ func (h *handler) Register(router *mux.Router) {
 // @ID sing-up-user
 // @Accepts json
 // @Param input body models.UserAuth true "User Auth"
-// @Sucess 200
+// @Success 200
 // @Failure 400
 // @Router /auth/sign-up [post]
 func (h *handler) SignUp(w http.ResponseWriter, r *http.Request) {
@@ -57,14 +57,14 @@ func (h *handler) SignUp(w http.ResponseWriter, r *http.Request) {
 }
 
 // @Summary SignInUser
-// @Tags movies
+// @Tags auth
 // @Desctiption sign in user
 // @ID sing-in-user
 // @Param username query string true "Username"
 // @Param password query string true "Password"
-// @Sucess 200 {object} struct{token string} true "Movie Info"
+// @Success 200 {object} jsonTokenErrorWrapper
 // @Failure 404
-// @Router /auth/sign-in [post]
+// @Router /auth/sign-in [get]
 func (h *handler) SignIn(w http.ResponseWriter, r *http.Request) {
 	len := r.ContentLength
 	body := make([]byte, len)
@@ -75,10 +75,18 @@ func (h *handler) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	token, err := h.service.GenerateToken(username, password)
 	if err != nil {
-		json, _ := json.MarshalIndent(map[string]string{"error": "failed to generate token"}, "", " ")
+		json, _ := json.MarshalIndent(jsonTokenErrorWrapper{TokenError: "failed to generate token"}, "", " ")
 		w.Write([]byte(json))
 	} else {
-		json, _ := json.MarshalIndent(map[string]string{"token": token}, "", " ")
+		json, _ := json.MarshalIndent(jsonTokenWrapper{Token: token}, "", " ")
 		w.Write([]byte(json))
 	}
+}
+
+type jsonTokenWrapper struct {
+	Token string `json:"token"`
+}
+
+type jsonTokenErrorWrapper struct {
+	TokenError string `json:"error"`
 }

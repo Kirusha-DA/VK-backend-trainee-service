@@ -37,7 +37,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Actor"
+                            "$ref": "#/definitions/dtos.ActorDTO"
                         }
                     }
                 ],
@@ -58,7 +58,17 @@ const docTemplate = `{
                 ],
                 "summary": "GetAllActorsWithMovies",
                 "operationId": "get-actor-movie",
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Actor"
+                            }
+                        }
+                    }
+                }
             }
         },
         "/actors/{id}": {
@@ -83,7 +93,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Actor"
+                            "$ref": "#/definitions/dtos.ActorDTO"
                         }
                     },
                     {
@@ -97,9 +107,6 @@ const docTemplate = `{
                 "responses": {
                     "400": {
                         "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
                     }
                 }
             },
@@ -150,7 +157,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Actor"
+                            "$ref": "#/definitions/dtos.ActorDTO"
                         }
                     },
                     {
@@ -172,9 +179,9 @@ const docTemplate = `{
             }
         },
         "/auth/sign-in": {
-            "post": {
+            "get": {
                 "tags": [
-                    "movies"
+                    "auth"
                 ],
                 "summary": "SignInUser",
                 "operationId": "sing-in-user",
@@ -195,6 +202,12 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/usersauth.jsonTokenErrorWrapper"
+                        }
+                    },
                     "404": {
                         "description": "Not Found"
                     }
@@ -220,6 +233,9 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
                     "400": {
                         "description": "Bad Request"
                     }
@@ -248,7 +264,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Movie"
+                            "$ref": "#/definitions/dtos.MovieDTO"
                         }
                     }
                 ],
@@ -262,7 +278,7 @@ const docTemplate = `{
         "/movies": {
             "get": {
                 "tags": [
-                    "actors"
+                    "movies"
                 ],
                 "summary": "GetMoviesByName",
                 "operationId": "get-sorted-movies",
@@ -275,7 +291,14 @@ const docTemplate = `{
                         "required": true
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.MovieDTO"
+                        }
+                    }
+                }
             }
         },
         "/movies/actors/{actor_name}": {
@@ -283,7 +306,7 @@ const docTemplate = `{
                 "tags": [
                     "movies"
                 ],
-                "summary": "GetMoviesByName",
+                "summary": "GetMoviesByActorName",
                 "operationId": "get-movies-by-actor-name",
                 "parameters": [
                     {
@@ -295,6 +318,15 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dtos.MovieDTO"
+                            }
+                        }
+                    },
                     "404": {
                         "description": "Not Found"
                     }
@@ -323,7 +355,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Movie"
+                            "$ref": "#/definitions/dtos.MovieDTO"
                         }
                     },
                     {
@@ -337,9 +369,6 @@ const docTemplate = `{
                 "responses": {
                     "400": {
                         "description": "Bad Request"
-                    },
-                    "404": {
-                        "description": "Not Found"
                     }
                 }
             },
@@ -390,7 +419,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Movie"
+                            "$ref": "#/definitions/dtos.MovieDTO"
                         }
                     },
                     {
@@ -413,11 +442,45 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dtos.ActorDTO": {
+            "type": "object",
+            "properties": {
+                "birth_date": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sex": {
+                    "type": "string"
+                }
+            }
+        },
+        "dtos.MovieDTO": {
+            "type": "object",
+            "properties": {
+                "desctiption": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "rating": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.Actor": {
             "type": "object",
             "properties": {
                 "birth_date": {
                     "type": "string"
+                },
+                "movies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Movie"
+                    }
                 },
                 "name": {
                     "type": "string"
@@ -454,6 +517,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "usersauth.jsonTokenErrorWrapper": {
+            "type": "object",
+            "properties": {
+                "error": {
                     "type": "string"
                 }
             }

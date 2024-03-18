@@ -48,7 +48,7 @@ func (h *handler) Register(router *mux.Router) {
 // @Desctiption creates actor
 // @ID create-actor
 // @Accept json
-// @Param input body models.Actor true "List Info"
+// @Param input body dtos.ActorDTO true "List Info"
 // @Sucess 201
 // @Failure 400
 // @Router /actor [post]
@@ -73,10 +73,10 @@ func (h *handler) CreateActor(w http.ResponseWriter, r *http.Request) {
 // @Desctiption updates whole actor
 // @ID update-actor
 // @Accept json
-// @Param input body models.Actor true "Actor Info"
+// @Param input body dtos.ActorDTO true "Actor Info"
 // @Param id path int true "Account ID"
 // @Sucess 204
-// @Failure 400,404
+// @Failure 400
 // @Router /actors/{id} [put]
 func (h *handler) UpdateActorById(w http.ResponseWriter, r *http.Request) {
 	len := r.ContentLength
@@ -105,13 +105,12 @@ func (h *handler) UpdateActorById(w http.ResponseWriter, r *http.Request) {
 // @Desctiption partially updates whole actor
 // @ID partially-update-actor
 // @Accept json
-// @Param input body models.Actor true "Actor Info"
+// @Param input body dtos.ActorDTO true "Actor Info"
 // @Param id path int true "Actor ID"
 // @Sucess 204
 // @Failure 400,404
 // @Router /actors/{id} [patch]
 func (h *handler) PartiallyUpdateActorById(w http.ResponseWriter, r *http.Request) {
-
 	len := r.ContentLength
 	body := make([]byte, len)
 	r.Body.Read(body)
@@ -161,7 +160,7 @@ func (h *handler) DeleteActorById(w http.ResponseWriter, r *http.Request) {
 // @Desctiption gets all actors with movies actor
 // @ID get-actor-movie
 // @Produce json
-// @Sucess 200 {object} model.Actor true "Actor Info"
+// @Success 200 {object} []models.Actor
 // @Router /actors/movies [get]
 func (h *handler) GetAllActorsWithMovies(w http.ResponseWriter, r *http.Request) {
 	actorsWithMovies, _ := h.service.GetAllActorsWithMovies()

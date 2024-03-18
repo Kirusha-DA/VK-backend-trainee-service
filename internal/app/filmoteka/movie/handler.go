@@ -39,7 +39,7 @@ func NewHandler(middleware middleware.MiddleWare, service service.Service, logge
 
 func (h *handler) Register(router *mux.Router) {
 	router.HandleFunc(moviesURL, h.GetSortedMovies).Methods(http.MethodGet)
-	router.HandleFunc(moviesByNameURL, h.GetMoviesByActorName).Methods(http.MethodGet)
+	//	router.HandleFunc(moviesByNameURL, h.GetMoviesByMovieName).Methods(http.MethodGet)
 	router.HandleFunc(movieURL, h.middleware.MiddleWare(h.CreateMovie)).Methods(http.MethodPost)
 	router.HandleFunc(moviesByIDURL, h.middleware.MiddleWare(h.UpdateMovieById)).Methods(http.MethodPut)
 	router.HandleFunc(moviesByIDURL, h.middleware.MiddleWare(h.PartiallyUpdateMovieById)).Methods(http.MethodPatch)
@@ -48,11 +48,11 @@ func (h *handler) Register(router *mux.Router) {
 }
 
 // @Summary GetMoviesByName
-// @Tags actors
+// @Tags movies
 // @Desctiption get movies by name
 // @ID get-sorted-movies
 // @Param q query string true "sort by query parram"
-// @Sucess 200 {object} model.Movie true "Movie Info"
+// @Success 200 {object} dtos.MovieDTO
 // @Router /movies [get]
 func (h *handler) GetSortedMovies(w http.ResponseWriter, r *http.Request) {
 	queryValue := r.URL.Query().Get("sort_by")
@@ -81,7 +81,7 @@ func (h *handler) retrieveMoviesSortedByQueryValue(queryValue string) (movies []
 // @Desctiption creates actor
 // @ID create-movie
 // @Accept json
-// @Param input body models.Movie true "Movie Info"
+// @Param input body dtos.MovieDTO true "Movie Info"
 // @Sucess 201
 // @Failure 400
 // @Router /movie [post]
@@ -106,10 +106,10 @@ func (h *handler) CreateMovie(w http.ResponseWriter, r *http.Request) {
 // @Desctiption updates whole movie
 // @ID update-movie
 // @Accept json
-// @Param input body models.Movie true "Movie Info"
+// @Param input body dtos.MovieDTO true "Movie Info"
 // @Param id path int true "Movie ID"
 // @Sucess 204
-// @Failure 400,404
+// @Failure 400
 // @Router /movies/{id} [put]
 func (h *handler) UpdateMovieById(w http.ResponseWriter, r *http.Request) {
 	len := r.ContentLength
@@ -137,7 +137,7 @@ func (h *handler) UpdateMovieById(w http.ResponseWriter, r *http.Request) {
 // @Desctiption partially updates whole actor
 // @ID partially-update-movie
 // @Accept json
-// @Param input body models.Movie true "Actor Info"
+// @Param input body dtos.MovieDTO true "Actor Info"
 // @Param id path int true "Movie ID"
 // @Sucess 204
 // @Failure 400,404
@@ -182,12 +182,12 @@ func (h *handler) DeleteMovieById(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// @Summary GetMoviesByName
+// @Summary GetMoviesByActorName
 // @Tags movies
 // @Desctiption get movies by name
 // @ID get-movies-by-actor-name
 // @Param actor_name path string true "Actor Name"
-// @Sucess 200 {object} model.Movie true "Movie Info"
+// @Success 200 {object} []dtos.MovieDTO
 // @Failure 404
 // @Router /movies/actors/{actor_name} [get]
 func (h *handler) GetMoviesByActorName(w http.ResponseWriter, r *http.Request) {
