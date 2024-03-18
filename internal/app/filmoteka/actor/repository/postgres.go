@@ -1,8 +1,10 @@
-package db
+package repository
 
 import (
-	"github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/filmoteka/actor"
-	"github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/models"
+	"fmt"
+	"strconv"
+
+	"github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/filmoteka/models"
 	"github.com/Kirusha-DA/VK-backend-trainee-service/pkg/logging"
 	"gorm.io/gorm"
 )
@@ -12,40 +14,48 @@ type repository struct {
 	logger *logging.Logger
 }
 
-func NewRepository(db *gorm.DB, logger *logging.Logger) actor.Repository {
+func NewActorRepository(db *gorm.DB, logger *logging.Logger) Repository {
 	return &repository{
 		db:     db,
 		logger: logger,
 	}
 }
 
-func (r *repository) CreateActor(actor *models.Actor) {
-	if err := r.db.Model(&models.Actor{}).Create(actor); err != nil {
-		r.logger.Info(err)
+func (r *repository) CreateActor(actor *models.Actor) error {
+	if err := r.db.Model(&models.Actor{}).Create(actor).Error; err != nil {
+		return fmt.Errorf("failed to create actor: %s", err)
 	}
+	return nil
 }
 
-func (r *repository) UpdateActor(actor *models.Actor) {
-	if err := r.db.Save(actor); err != nil {
-		r.logger.Info(err)
+func (r *repository) UpdateActorById(actor *models.Actor) error {
+	if err := r.db.Save(actor).Error; err != nil {
+		return fmt.Errorf("failed to update actor: %s", err)
 	}
+	return nil
 }
 
-func (r *repository) PartiallyUpdateActor(actor *models.Actor) {
-	if err := r.db.Model(actor).Updates(actor); err != nil {
-		r.logger.Info(err)
+func (r *repository) PartiallyUpdateActorById(actor *models.Actor) error {
+	if err := r.db.Model(actor).Updates(actor).First(actor).Error; err != nil {
+		return fmt.Errorf("failed to patrially update actor: %s", err)
 	}
+	return nil
 }
 
-func (r *repository) DeleteActor(actorID string) {
-	if err := r.db.Delete(&models.Actor{}, actorID); err != nil {
-		r.logger.Info(err)
+func (r *repository) DeleteActorById(actorId string) error {
+	actorIdI, _ := strconv.Atoi(actorId)
+	if err := r.db.First(&models.Actor{}, actorIdI).Error; err != nil {
+		return fmt.Errorf("failed to delete actor: %s", err)
 	}
+	r.db.Delete(&models.Actor{}, actorIdI)
+	return nil
 }
 
-func (r *repository) GetAllActorsWithMovies() (actors []models.Actor) {
-	if err := r.db.Model(&models.Actor{}).Preload("Movies").Find(&actors); err != nil {
+func (r *repository) GetAllActorsWithMovies() ([]models.Actor, error) {
+	var actors []models.Actor
+	if err := r.db.Model(&models.Actor{}).Preload("Movies").Find(&actors).Error; err != nil {
 		r.logger.Info(err)
+		return nil, fmt.Errorf("failed to get all actors with movies: %s", err)
 	}
-	return actors
+	return actors, nil
 }

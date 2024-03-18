@@ -1,0 +1,293 @@
+definitions:
+  models.Actor:
+    properties:
+      birth_date:
+        type: string
+      name:
+        type: string
+      sex:
+        type: string
+    type: object
+  models.Movie:
+    properties:
+      actors:
+        items:
+          $ref: '#/definitions/models.Actor'
+        type: array
+      desctiption:
+        type: string
+      name:
+        type: string
+      rating:
+        type: integer
+    type: object
+  models.UserAuth:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  title: Filmoteka API
+  version: "1.0"
+paths:
+  /actor:
+    post:
+      consumes:
+      - application/json
+      operationId: create-actor
+      parameters:
+      - description: List Info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Actor'
+      responses:
+        "400":
+          description: Bad Request
+      security:
+      - ApiKeyAuth: []
+      summary: CreateActor
+      tags:
+      - actors
+  /actors/{id}:
+    delete:
+      operationId: delete-actor
+      parameters:
+      - description: Actor ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "404":
+          description: Not Found
+      security:
+      - ApiKeyAuth: []
+      summary: DeleteActorById
+      tags:
+      - actors
+    patch:
+      consumes:
+      - application/json
+      operationId: partially-update-actor
+      parameters:
+      - description: Actor Info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Actor'
+      - description: Actor ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+      security:
+      - ApiKeyAuth: []
+      summary: PartiallyUpdateActorById
+      tags:
+      - actors
+    put:
+      consumes:
+      - application/json
+      operationId: update-actor
+      parameters:
+      - description: Actor Info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Actor'
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+      security:
+      - ApiKeyAuth: []
+      summary: UpdateActorById
+      tags:
+      - actors
+  /actors/movies:
+    get:
+      operationId: get-actor-movie
+      produces:
+      - application/json
+      responses: {}
+      summary: GetAllActorsWithMovies
+      tags:
+      - actors
+  /auth/sign-in:
+    post:
+      operationId: sing-in-user
+      parameters:
+      - description: Username
+        in: query
+        name: username
+        required: true
+        type: string
+      - description: Password
+        in: query
+        name: password
+        required: true
+        type: string
+      responses:
+        "404":
+          description: Not Found
+      summary: SignInUser
+      tags:
+      - movies
+  /auth/sign-up:
+    post:
+      operationId: sing-up-user
+      parameters:
+      - description: User Auth
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserAuth'
+      responses:
+        "400":
+          description: Bad Request
+      summary: SignUpUser
+      tags:
+      - auth
+  /movie:
+    post:
+      consumes:
+      - application/json
+      operationId: create-movie
+      parameters:
+      - description: Movie Info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Movie'
+      responses:
+        "400":
+          description: Bad Request
+      security:
+      - ApiKeyAuth: []
+      summary: CreateMovie
+      tags:
+      - movies
+  /movies:
+    get:
+      operationId: get-sorted-movies
+      parameters:
+      - description: sort by query parram
+        in: query
+        name: q
+        required: true
+        type: string
+      responses: {}
+      summary: GetMoviesByName
+      tags:
+      - actors
+  /movies/{id}:
+    delete:
+      operationId: delete-movie
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "404":
+          description: Not Found
+      security:
+      - ApiKeyAuth: []
+      summary: DeleteMovieById
+      tags:
+      - movies
+    patch:
+      consumes:
+      - application/json
+      operationId: partially-update-movie
+      parameters:
+      - description: Actor Info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Movie'
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+      security:
+      - ApiKeyAuth: []
+      summary: PartiallyUpdateMovieById
+      tags:
+      - movies
+    put:
+      consumes:
+      - application/json
+      operationId: update-movie
+      parameters:
+      - description: Movie Info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Movie'
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+      security:
+      - ApiKeyAuth: []
+      summary: UpdateMovieById
+      tags:
+      - movies
+  /movies/actors/{actor_name}:
+    get:
+      operationId: get-movies-by-actor-name
+      parameters:
+      - description: Actor Name
+        in: path
+        name: actor_name
+        required: true
+        type: string
+      responses:
+        "404":
+          description: Not Found
+      summary: GetMoviesByName
+      tags:
+      - movies
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

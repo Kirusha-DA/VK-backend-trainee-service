@@ -7,15 +7,32 @@ import (
 	"time"
 
 	"github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/filmoteka/actor"
-	dbActor "github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/filmoteka/actor/repository"
+	actorRepository "github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/filmoteka/actor/repository"
+	actorService "github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/filmoteka/actor/service"
 	"github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/filmoteka/config"
+	"github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/filmoteka/middleware"
+	"github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/filmoteka/models"
 	"github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/filmoteka/movie"
-	dbMovie "github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/filmoteka/movie/repository"
-	"github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/models"
+	movieRepository "github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/filmoteka/movie/repository"
+	movieService "github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/filmoteka/movie/service"
+	usersauth "github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/filmoteka/users-auth"
+	authRepository "github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/filmoteka/users-auth/repository"
+	authService "github.com/Kirusha-DA/VK-backend-trainee-service/internal/app/filmoteka/users-auth/service"
 	"github.com/Kirusha-DA/VK-backend-trainee-service/pkg/dbclient/postgres"
 	"github.com/Kirusha-DA/VK-backend-trainee-service/pkg/logging"
 	"github.com/gorilla/mux"
 )
+
+// @title Filmoteka API
+// @version 1.0
+// @desctiption API server for Filmoteka Application
+
+// @host localhost:8080
+// @BasePath/
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 
 func main() {
 	logger := logging.GetLogger()
@@ -32,21 +49,27 @@ func main() {
 		Password: cfg.Storage.Password,
 	})
 
-	if err := connection.AutoMigrate(&models.Actor{}, &models.Movie{}); err != nil {
+	if err := connection.AutoMigrate(&models.Actor{}, &models.Movie{}, &models.UserAuth{}); err != nil {
 		logger.Fatal(err)
 	}
 
-	actorRepo := dbActor.NewRepository(connection, logger)
-	movieRepo := dbMovie.NewRepository(connection, logger)
+	actorRepo := actorRepository.NewActorRepository(connection, logger)
+	movieRepo := movieRepository.NewRepository(connection, logger)
+	userAuthRepo := authRepository.NewRepository(connection, logger)
 
-	actorService := actor.NewService(actorRepo, logger)
-	movieService := movie.NewService(movieRepo, logger)
+	actorService := actorService.NewActorService(actorRepo, logger)
+	movieService := movieService.NewService(movieRepo, logger)
+	userAuthService := authService.NewService(userAuthRepo, logger)
 
-	actorHandler := actor.NewHandler(actorService, logger)
-	movieHandler := movie.NewHandler(movieService, logger)
+	middleWare := middleware.NewMiddleWare(userAuthService, logger)
+
+	actorHandler := actor.NewHandler(middleWare, actorService, logger)
+	movieHandler := movie.NewHandler(middleWare, movieService, logger)
+	userAuthHandler := usersauth.NewHandler(userAuthService, logger)
 
 	actorHandler.Register(router)
 	movieHandler.Register(router)
+	userAuthHandler.Register(router)
 
 	run(router, cfg)
 }
